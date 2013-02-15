@@ -115,6 +115,17 @@ class TestBadUserAdd(testLib.RestTestCase):
         expected['errCode'] = -3
         self.assertDictEqual(expected, respData)
 
+class TestLongUserAdd(testLib.RestTestCase):
+    def testLongUser(self):
+        user = ''
+        for n in range(200):
+            user += 'a'
+
+        respData = self.makeRequest("/users/add", method="POST", data = { 'user' : user, 'password' : 'foo'})
+        expected = {}
+        expected['errCode'] = -3
+        self.assertDictEqual(expected, respData)
+
 class TestBadPassAdd(testLib.RestTestCase):
     def testBadPass(self):
         password = ''
