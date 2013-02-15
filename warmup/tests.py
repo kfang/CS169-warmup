@@ -151,6 +151,39 @@ class LoginTest(TestCase):
 		response_data['count'] = 2
 		self.assertEqual(response.content, json.dumps(response_data));
 
+class MultipleUserLoginTest(TestCase):
+	def test_multiple_user_login(self):
+		request_data = {}
+		request_data['user'] = 'admin'
+		request_data['password'] = 'admin'
+		response = self.client.post('/users/add', json.dumps(request_data), content_type="application/json")
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(User.objects.count(), 1)
+
+		request_data['user'] = 'foo'
+		request_data['password'] = 'bar'
+		response = self.client.post('/users/add', json.dumps(request_data), content_type="application/json")
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(User.objects.count(), 2)
+
+		request_data['user'] = 'admin'
+		request_data['password'] = 'admin'
+		response = self.client.post('/users/login', json.dumps(request_data), content_type="application/json")
+		self.assertEqual(response.status_code, 200)
+		response_data = {}
+		response_data['errCode'] = 1
+		response_data['count'] = 2
+		self.assertEqual(response.content, json.dumps(response_data));
+
+		request_data['user'] = 'foo'
+		request_data['password'] = 'bar'
+		response = self.client.post('/users/login', json.dumps(request_data), content_type="application/json")
+		self.assertEqual(response.status_code, 200)
+		response_data = {}
+		response_data['errCode'] = 1
+		response_data['count'] = 2
+		self.assertEqual(response.content, json.dumps(response_data));
+
 class CountTest(TestCase):
 	def test_login_count(self):
 		request_data = {}
