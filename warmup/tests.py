@@ -32,14 +32,6 @@ class ClearTest(TestCase):
 		count = User.objects.count()
 		self.assertEqual(count, 0)
 
-class UserCharLimitTest(TestCase):
-	def test_character_limit(self):
-		username = ''
-		for n in range(129):
-			username += 'a'
-		user = User(name=username, password='admin', num_logins=1)
-		self.assertRaises(DatabaseError, user.save)
-
 class AddTest(TestCase):
 	def test_add_user(self):
 		request_data = {}
