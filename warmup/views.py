@@ -25,6 +25,9 @@ def login_form(request):
 def reset_form(request):
 	return render(request, 'warmup/reset.html', {})
 
+def test_form(request):
+	return render(request, 'warmup/test.html', {})
+
 def add(request):
 	data = json.loads(request.raw_post_data)
 	username = data['user']
@@ -91,4 +94,34 @@ def reset(request):
 		return HttpResponse(json.dumps(response_data), mimetype="application/json")	
 	else :	
 		response_data['errCode'] = 'MUST BE A POST REQUEST'
+		return HttpResponse(json.dumps(response_data), mimetype="application/json")
+
+def run_test(request):
+	response_data = {}
+	if request.method == "POST":
+		from subprocess import Popen, PIPE, STDOUT
+
+		cmd = 'python manage.py test warmup'
+		p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
+		output = p.stdout.read()
+
+		index = output.find("Ran ")
+		num_start = output.find(" ", index) + 1
+		num_end = output.find(" ", num_start)
+		test_num = output[num_start:num_end]
+
+		failed_num = 0
+		if output.find("FAILED") != -1:
+			index = output.find("(failures=")
+			num_start = output.find("=", index) + 1
+			num_end = output.find(")", num_start)
+			failed_num = output[num_start:num_end]
+
+
+		response_data['totalTests'] = int(test_num)
+		response_data['nrFailed'] = int(failed_num)
+		response_data['output'] = output
 		return HttpResponse(json.dumps(response_data), mimetype="application/json")	
+	else :
+		response_data['errCode'] = 'MUST BE A POST REQUEST'
+		return HttpResponse(json.dumps(response_data), mimetype="application/json")
