@@ -1,0 +1,31 @@
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.9.1.min.js"></script>
+
+<script>
+$().ready(function(){
+	$('#submit').click(function(){
+		console.log($('#username').val(), $('#password').val())
+		post($('#username').val(), $('#password').val());
+	})
+});
+
+function post(user, pass){
+	data = {
+		'user' : user,
+		'password' : pass
+	};
+	$.ajax({
+		type: "POST",
+		url: '{% url warmup:add %}',
+		data: JSON.stringify(data),
+		dataType: 'application/json'
+	}).done(function(){
+		console.log(data);
+	});
+}
+
+</script>
+
+	{% csrf_token %}
+	<input id="username" type="text" name="username" />
+	<input id="password" type="password" name="password" />
+	<input id="submit" type="submit" value="Signup!" />
