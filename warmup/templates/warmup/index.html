@@ -1,1 +1,95 @@
-<p>Hello World! You've reached index</p>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.9.1.min.js"></script>
+
+<script>
+$().ready(function(){
+	$('#login').click(function(){
+		login($('#username').val(), $('#password').val());
+	});
+
+	$('#add_user').click(function(){
+		add_user($('#username').val(), $('#password').val());
+	});
+
+	$('#logout').click(function(){
+		$('#logged_in').hide();
+		$('#login_add').show();
+	})
+	$('#logged_in').hide();
+});
+
+function clearForm(){
+	$('#message').html('');
+	$('#username').val('');
+	$('#password').val('');
+}
+function login(user, pass){
+	data = {
+		'user' : user,
+		'password' : pass
+	};
+	$.post('/users/login', JSON.stringify(data), function(response) {
+		if(response['errCode']){
+			errCode = response['errCode'];
+			if (errCode == 1){
+	    		//successful login
+	    		clearForm();
+	    		$('#logged_in').show();
+	    		$('#login_add').hide();
+	    		$('#user_name').html(data['user']);
+	    		$('#login_count').html(response['count']);
+	    	} else if (errCode == -1){
+	    		//bad login
+	    		$('#message').html("Invalid username and password combination. Please try again.");
+	    	} else {
+	    		//server did something bad
+	    		$('#message').html("Server Error: Please contact a System Administrator.");
+	    	}
+	    }
+	});
+}
+
+function add_user(user, pass){
+	data = {
+		'user' : user,
+		'password' : pass
+	};
+	$.post('/users/add', JSON.stringify(data), function(response) {
+		if(response['errCode']){
+			errCode = response['errCode'];
+			if (errCode == 1){
+				clearForm();
+				$('#logged_in').show();
+				$('#login_add').hide();
+				$('#user_name').html(data['user']);
+				$('#login_count').html(response['count']);
+			} else if (errCode == -2){
+				$('#message').html("This Username already exists");
+			} else if (errCode == -3){
+				$('#message').html("The user name should be non-empty and at most 128 characters long. Please try again.");
+			} else if (errCode == -4){
+				$('#message').html("The password should be at most 128 characters log. Please try again.");
+			} else {
+	    		//server did something bad
+	    		$('#message').html("Server Error: Please contact a System Administrator.");
+	    	}
+	    }
+	});
+}
+
+
+</script>
+
+<div id="message" style="color:red">
+</div>
+<div id="login_add">
+	<p>Username: <input id="username" type="text" name="username" /><br />
+		Password: <input id="password" type="password" name="password" /></p>
+		<input id="login" type="submit" value="Login" />
+		<input id="add_user" type="submit" value="Add User" />
+	</div>
+
+	<div id="logged_in">
+		<p>Welcome <strong id="user_name"></strong><br />
+			You have logged in <strong id="login_count"></strong> times</p>
+			<input id="logout" type="submit" value="Logout" />
+		</div>

@@ -5,6 +5,7 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
+    url(r'^', include('warmup.urls', namespace="warmup")),
 	url(r'^users/', include('warmup.urls', namespace="warmup")),
     url(r'^TESTAPI/', include('warmup.urls', namespace="warmup")),
     # Examples:
